@@ -2,13 +2,13 @@
 
 import sys
 import os
-import urllib.request, urllib.parse, urllib.error
 import xbmcaddon
 import xbmcgui
 import xbmcplugin
 import requests
 import re
 import xmltodict
+from urllib.parse import urlencode, parse_qs
 
 
 def build_url(query):
@@ -20,7 +20,7 @@ def build_url(query):
     :rtype: str
     """
     base_url = sys.argv[0]
-    return base_url + '?' + urllib.parse.urlencode(query)
+    return base_url + '?' + urlencode(query)
 
 
 def get_rss(url):
@@ -107,11 +107,6 @@ def build_menu(items, is_folder):
         # create a list item using the song filename for the label
         li = xbmcgui.ListItem(label = items[item]['title'])
 
-        # set the fanart to the album cover
-        # li.setProperty(
-        #     'fanart_image',
-        #     os.path.join(ADDON_FOLDER, 'resources/media/fanart.jpg'))
-
         li.setProperty('IsPlayable', 'false' if is_folder else 'true')
 
         # li.setProperty('PlotOutline', items[item]['description'])
@@ -135,7 +130,7 @@ def build_menu(items, is_folder):
         items_list.append((url, li, is_folder))
     xbmcplugin.addDirectoryItems(ADDON_HANDLE, items_list, len(items_list))
     xbmcplugin.setContent(ADDON_HANDLE, 'musicvideos')
-    # xbmcplugin.endOfDirectory(ADDON_HANDLE)
+    xbmcplugin.endOfDirectory(ADDON_HANDLE)
 
 def clean_album_cover(item):
     substring_to_remove = "https://eco99fm.maariv.co.il/download/Sets/pictures/"
@@ -162,7 +157,7 @@ def play(url):
 
 def main():
     """Main method."""
-    args = urllib.parse.parse_qs(sys.argv[2][1:])
+    args = parse_qs(sys.argv[2][1:])
     mode = args.get('mode', None)
     if mode is None:
         items = get_channels()
@@ -173,7 +168,6 @@ def main():
     elif mode[0] == 'stream':
         play(args['url'][0])
         # play(args['url'][0].replace('/playlist.m3u8', ''))
-    xbmcplugin.endOfDirectory(ADDON_HANDLE)
 
 
 if __name__ == '__main__':
